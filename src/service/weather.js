@@ -1,5 +1,4 @@
 
-
 const FETCH_OPTIONS = {
     method: "GET",
     headers: {
@@ -9,7 +8,7 @@ const FETCH_OPTIONS = {
     },
 }
 
-export async function getWeatherFrom(query = 'Nueva Cajamarca') {
+export async function getWeatherFrom(query = 'Moyobamba') {
     const url = `https://weatherapi-com.p.rapidapi.com/current.json?q=${query}`;
 
     try {
@@ -26,7 +25,7 @@ export async function getWeatherFrom(query = 'Nueva Cajamarca') {
             conditionText: text,
             country,
             localtime,
-            name,
+            locationName: name,
             humidity,
             isDay: is_day,
             feelsLike: feelslike_c,
@@ -37,7 +36,5 @@ export async function getWeatherFrom(query = 'Nueva Cajamarca') {
     } catch (error) {
         console.error(error);
     }
-
-
 
 } 
