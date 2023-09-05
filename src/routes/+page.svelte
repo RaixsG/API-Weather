@@ -2,13 +2,15 @@
     import { onMount } from "svelte";
     import FooterWeather from "../lib/footer-weather.svelte";
     import { getWeatherData } from "../service/weather";
+    import LoadingWait from "../img/animations/LoadingWait.svelte";
+
     //? SCRRENS STATES
     let loading = false;
     let error = false;
 
     //? INITIAL WEATHER VALUES
     let weatherData = {
-        locationName: `${loading ? "Cargando" : ""}`,
+        locationName: "",
         temperature: `${loading ? "Cargando" : ""}`,
         conditionText: `${loading ? "Cargando" : ""}`,
         icon: `${loading ? "Cargando" : ""}`,
@@ -35,6 +37,9 @@
     });
 </script>
 
+{#if !weatherData.locationName}
+    <LoadingWait />
+{:else}
 <div>
     <section>
         <h1>
@@ -56,6 +61,7 @@
     </section>
     <FooterWeather />
 </div>
+{/if}
 
 <style>
     /* apply a natural box layout model to all elements, but allowing components to change */
@@ -112,7 +118,7 @@
         font-weight: 400;
         transform: rotate(-90deg);
         position: absolute;
-        top: 20px;
+        top: 35px;
         right: 35px;
 
         max-width: 100%;
@@ -122,5 +128,11 @@
     div .imgIcon {
         display: grid;
         justify-items: center;
+    }
+
+    img {
+        max-width: 100%;
+        width: 150px;
+        height: auto;
     }
 </style>

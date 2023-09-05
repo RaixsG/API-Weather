@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const getWeatherData = (query = 'Moyobamba') => {
+export const getWeatherData = (query = 'Chachapoyas') => {
     const cityName = query;
     const config = {
         headers: {
