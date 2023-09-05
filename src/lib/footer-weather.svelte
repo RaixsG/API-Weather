@@ -1,12 +1,42 @@
 <script>
-    import { getWeatherFrom } from "../service/weather";
-    const weather = getWeatherFrom();
+    import { onMount } from "svelte";
+    import { getWeatherData } from "../service/weather";
+
+    //? INITIAL WEATHER VALUES
+    let weatherData = {
+        humidity: null,
+        windSpeed: null,
+        feelsLike: null,
+    };
+
+    //? SCRRENS STATES
+    let loading = false;
+    let error = false;
+
+    //? API REQUEST
+    onMount(() => {
+        loading = true;
+        getWeatherData()
+            .then(response => {
+                const currentData = response.data.current;
+                weatherData.humidity = currentData.humidity;
+                weatherData.windSpeed = currentData.wind_kph;
+                weatherData.feelsLike = currentData.feelslike_c;
+            })
+            .catch(error => {
+                console.log(`Error in "getWeatherData": ${JSON.stringify(error)}`);
+                error = true;
+            }).finally(() => loading = false);
+    
+    });
 </script>
 
 <footer>
     <div>
         <span>
-            33%
+            { loading ? 'Cargando' : '' }
+            { error ? 'Error' : '' }
+            { weatherData ? weatherData.humidity : '' }
         </span>
         <strong>
             Humidity
@@ -15,7 +45,9 @@
 
     <div>
         <span>
-            12 km/h
+            { loading ? 'Cargando' : '' }
+            { error ? 'Error' : '' }
+            { weatherData ? weatherData.windSpeed : '' }
         </span>
         <strong>
             Windspeed
@@ -24,14 +56,15 @@
 
     <div>
         <span>
-            12°
+            { loading ? 'Cargando' : '' }
+            { error ? 'Error' : '' }
+            { weatherData ? `${weatherData.feelsLike}º` : '' }
         </span>
         <strong>
             Feels like
         </strong>
     </div>
 </footer>
-
 <style>
     footer {
         border: 2px solid #f5f5f5;

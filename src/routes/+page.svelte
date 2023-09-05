@@ -1,20 +1,61 @@
 <script>
+    import { onMount } from "svelte";
     import FooterWeather from "../lib/footer-weather.svelte";
+    import { getWeatherData } from "../service/weather";
+    //? SCRRENS STATES
+    let loading = false;
+    let error = false;
 
-    import { getWeatherFrom } from "../service/weather";
-    const weatherPromise = getWeatherFrom();
+    //? INITIAL WEATHER VALUES
+    let weatherData = {
+        locationName: `${loading ? "Cargando" : ""}`,
+        temperature: `${loading ? "Cargando" : ""}`,
+        conditionText: `${loading ? "Cargando" : ""}`,
+        icon: `${loading ? "Cargando" : ""}`,
+    };
+
+    onMount(() => {
+        loading = true;
+        getWeatherData()
+            .then((reponse) => {
+                const locationData = reponse.data.location;
+                const currentData = reponse.data.current;
+                weatherData.locationName = locationData.name;
+                weatherData.temperature = currentData.temp_c;
+                weatherData.conditionText = currentData.condition.text;
+                weatherData.icon = currentData.condition.icon;
+            })
+            .catch((error) => {
+                console.log(
+                    `Error in "getWeatherData": ${JSON.stringify(error)}`
+                );
+                error = true;
+            })
+            .finally(() => (loading = false));
+    });
 </script>
 
-{#await weatherPromise then weather}
 <div>
     <section>
-        <h1>{weather.locationName}</h1>
-        <h2>{weather.temperature}°</h2>
-        <h3>{weather.conditionText}</h3>
+        <h1>
+            {error ? "Error" : ""}
+            {weatherData ? weatherData.locationName : ""}
+        </h1>
+        <h2>
+            {error ? "Error" : ""}
+            {weatherData.temperature}°
+        </h2>
+        <h3>
+            {error ? "Error" : ""}
+            {weatherData.conditionText}
+        </h3>
     </section>
-    <FooterWeather/>
+    <section class="imgIcon">
+        {error ? "Error" : ""}
+        <img src={weatherData.icon} alt="Icon" />
+    </section>
+    <FooterWeather />
 </div>
-{/await}
 
 <style>
     /* apply a natural box layout model to all elements, but allowing components to change */
@@ -72,7 +113,14 @@
         transform: rotate(-90deg);
         position: absolute;
         top: 20px;
-        right: 12px;
+        right: 35px;
+
+        max-width: 100%;
+        width: 70px;
     }
 
+    div .imgIcon {
+        display: grid;
+        justify-items: center;
+    }
 </style>
