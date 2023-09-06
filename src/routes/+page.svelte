@@ -19,8 +19,21 @@
         feelsLike: "Cargando",
     };
 
+    // Geolocation
+    let coords;
+
     onMount(() => {
-        getWeatherData()
+        const success = (pos) => {
+            const latAndLon = {
+                lat: pos.coords.latitude,
+                lon: pos.coords.longitude,
+            };
+            coords = latAndLon;
+            // console.log(latAndLon);
+        };
+        navigator.geolocation.getCurrentPosition(success);
+
+        getWeatherData(coords)
             .then((reponse) => {
                 const locationData = reponse.data.location;
                 const currentData = reponse.data.current;
@@ -34,7 +47,9 @@
                 weatherData.feelsLike = currentData.feelslike_c;
             })
             .catch((error) => {
-                console.log(`Error in "getWeatherData": ${JSON.stringify(error)}`);
+                console.log(
+                    `Error in "getWeatherData": ${JSON.stringify(error)}`
+                );
                 error = true;
             });
     });
@@ -47,8 +62,7 @@
         <section>
             <h1>
                 {#if error}'Error'{/if}
-                {#if !error}{ weatherData.locationName }{/if}
-                
+                {#if !error}{weatherData.locationName}{/if}
             </h1>
             <h2>
                 {#if error}'Error'{/if}
@@ -64,10 +78,10 @@
             <img src={weatherData.icon} alt="Icon" />
         </section>
         <FooterWeather
-            error={ error }
-            humidity={ weatherData.humidity }
-            windSpeed={ weatherData.windSpeed }
-            feelsLike={ weatherData.feelsLike }
+            {error}
+            humidity={weatherData.humidity}
+            windSpeed={weatherData.windSpeed}
+            feelsLike={weatherData.feelsLike}
         />
     </div>
 {/if}
