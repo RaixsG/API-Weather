@@ -1,42 +1,15 @@
 <script>
-    import { onMount } from "svelte";
-    import { getWeatherData } from "../service/weather";
-
-    //? INITIAL WEATHER VALUES
-    let weatherData = {
-        humidity: null,
-        windSpeed: null,
-        feelsLike: null,
-    };
-
-    //? SCRRENS STATES
-    let loading = false;
-    let error = false;
-
-    //? API REQUEST
-    onMount(() => {
-        loading = true;
-        getWeatherData()
-            .then(response => {
-                const currentData = response.data.current;
-                weatherData.humidity = currentData.humidity;
-                weatherData.windSpeed = currentData.wind_kph;
-                weatherData.feelsLike = currentData.feelslike_c;
-            })
-            .catch(error => {
-                console.log(`Error in "getWeatherData": ${JSON.stringify(error)}`);
-                error = true;
-            }).finally(() => loading = false);
-    
-    });
+    export let error;
+    export let humidity;
+    export let windSpeed;
+    export let feelsLike;
 </script>
 
 <footer>
     <div>
         <span>
-            { loading ? 'Cargando' : '' }
-            { error ? 'Error' : '' }
-            { weatherData ? weatherData.humidity : '' }
+            {#if error}'Error'{/if}
+            {#if !error}{ humidity }{/if}
         </span>
         <strong>
             Humidity
@@ -45,9 +18,8 @@
 
     <div>
         <span>
-            { loading ? 'Cargando' : '' }
-            { error ? 'Error' : '' }
-            { weatherData ? weatherData.windSpeed : '' }
+            {#if error}'Error'{/if}
+            {#if !error}{ windSpeed }{/if}
         </span>
         <strong>
             Windspeed
@@ -56,9 +28,8 @@
 
     <div>
         <span>
-            { loading ? 'Cargando' : '' }
-            { error ? 'Error' : '' }
-            { weatherData ? `${weatherData.feelsLike}º` : '' }
+            {#if error}'Error'{/if}
+            {#if !error}{ feelsLike }º{/if}
         </span>
         <strong>
             Feels like

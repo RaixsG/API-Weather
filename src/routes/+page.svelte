@@ -5,19 +5,21 @@
     import LoadingWait from "../img/animations/LoadingWait.svelte";
 
     //? SCRRENS STATES
-    let loading = false;
     let error = false;
 
     //? INITIAL WEATHER VALUES
     let weatherData = {
-        locationName: "",
-        temperature: `${loading ? "Cargando" : ""}`,
-        conditionText: `${loading ? "Cargando" : ""}`,
-        icon: `${loading ? "Cargando" : ""}`,
+        locationName: "Cargando",
+        temperature: "Cargando",
+        conditionText: "Cargando",
+        icon: "Cargando",
+        // Footer
+        humidity: "Cargando",
+        windSpeed: "Cargando",
+        feelsLike: "Cargando",
     };
 
     onMount(() => {
-        loading = true;
         getWeatherData()
             .then((reponse) => {
                 const locationData = reponse.data.location;
@@ -26,41 +28,48 @@
                 weatherData.temperature = currentData.temp_c;
                 weatherData.conditionText = currentData.condition.text;
                 weatherData.icon = currentData.condition.icon;
+                // Data Footer
+                weatherData.humidity = currentData.humidity;
+                weatherData.windSpeed = currentData.wind_kph;
+                weatherData.feelsLike = currentData.feelslike_c;
             })
             .catch((error) => {
-                console.log(
-                    `Error in "getWeatherData": ${JSON.stringify(error)}`
-                );
+                console.log(`Error in "getWeatherData": ${JSON.stringify(error)}`);
                 error = true;
-            })
-            .finally(() => (loading = false));
+            });
     });
 </script>
 
 {#if !weatherData.locationName}
     <LoadingWait />
 {:else}
-<div>
-    <section>
-        <h1>
+    <div>
+        <section>
+            <h1>
+                {#if error}'Error'{/if}
+                {#if !error}{ weatherData.locationName }{/if}
+                
+            </h1>
+            <h2>
+                {#if error}'Error'{/if}
+                {#if !error}{weatherData.temperature}°{/if}
+            </h2>
+            <h3>
+                {#if error}'Error'{/if}
+                {#if !error}{weatherData.conditionText}{/if}
+            </h3>
+        </section>
+        <section class="imgIcon">
             {error ? "Error" : ""}
-            {weatherData ? weatherData.locationName : ""}
-        </h1>
-        <h2>
-            {error ? "Error" : ""}
-            {weatherData.temperature}°
-        </h2>
-        <h3>
-            {error ? "Error" : ""}
-            {weatherData.conditionText}
-        </h3>
-    </section>
-    <section class="imgIcon">
-        {error ? "Error" : ""}
-        <img src={weatherData.icon} alt="Icon" />
-    </section>
-    <FooterWeather />
-</div>
+            <img src={weatherData.icon} alt="Icon" />
+        </section>
+        <FooterWeather
+            error={ error }
+            humidity={ weatherData.humidity }
+            windSpeed={ weatherData.windSpeed }
+            feelsLike={ weatherData.feelsLike }
+        />
+    </div>
 {/if}
 
 <style>
