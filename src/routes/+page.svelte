@@ -8,43 +8,36 @@
     let error = false;
 
     //? INITIAL WEATHER VALUES
-    let weatherData = {
-        locationName: "Cargando",
-        temperature: "Cargando",
-        conditionText: "Cargando",
-        icon: "Cargando",
-        // Footer
-        humidity: "Cargando",
-        windSpeed: "Cargando",
-        feelsLike: "Cargando",
-    };
+    let weatherData = null;
 
     // Geolocation
-    let coords;
+    let coords = null;
 
-    onMount(() => {
+    const getCoords = () => {
         const success = (pos) => {
             const latAndLon = {
                 lat: pos.coords.latitude,
                 lon: pos.coords.longitude,
             };
-            coords = latAndLon;
-            // console.log(latAndLon);
+            coords = `${latAndLon.lat},${latAndLon.lon}`;
         };
         navigator.geolocation.getCurrentPosition(success);
+    };
 
+    $: if (coords) {
         getWeatherData(coords)
-            .then((reponse) => {
-                const locationData = reponse.data.location;
-                const currentData = reponse.data.current;
-                weatherData.locationName = locationData.name;
-                weatherData.temperature = currentData.temp_c;
-                weatherData.conditionText = currentData.condition.text;
-                weatherData.icon = currentData.condition.icon;
-                // Data Footer
-                weatherData.humidity = currentData.humidity;
-                weatherData.windSpeed = currentData.wind_kph;
-                weatherData.feelsLike = currentData.feelslike_c;
+            .then((response) => {
+                const locationData = response.data.location;
+                const currentData = response.data.current;
+                weatherData = {
+                    locationName: locationData.name,
+                    temperature: currentData.temp_c,
+                    conditionText: currentData.condition.text,
+                    icon: currentData.condition.icon,
+                    humidity: currentData.humidity,
+                    windSpeed: currentData.wind_kph,
+                    feelsLike: currentData.feelslike_c,
+                };
             })
             .catch((error) => {
                 console.log(
@@ -52,36 +45,38 @@
                 );
                 error = true;
             });
-    });
+    }
+
+    onMount(getCoords);
 </script>
 
-{#if !weatherData.locationName}
+{#if !weatherData?.locationName}
     <LoadingWait />
 {:else}
     <div>
         <section>
             <h1>
                 {#if error}'Error'{/if}
-                {#if !error}{weatherData.locationName}{/if}
+                {#if !error}{weatherData?.locationName}{/if}
             </h1>
             <h2>
                 {#if error}'Error'{/if}
-                {#if !error}{weatherData.temperature}°{/if}
+                {#if !error}{weatherData?.temperature}°{/if}
             </h2>
             <h3>
                 {#if error}'Error'{/if}
-                {#if !error}{weatherData.conditionText}{/if}
+                {#if !error}{weatherData?.conditionText}{/if}
             </h3>
         </section>
         <section class="imgIcon">
             {error ? "Error" : ""}
-            <img src={weatherData.icon} alt="Icon" />
+            <img src={weatherData?.icon} alt="Icon" />
         </section>
         <FooterWeather
             {error}
-            humidity={weatherData.humidity}
-            windSpeed={weatherData.windSpeed}
-            feelsLike={weatherData.feelsLike}
+            humidity={weatherData?.humidity}
+            windSpeed={weatherData?.windSpeed}
+            feelsLike={weatherData?.feelsLike}
         />
     </div>
 {/if}
